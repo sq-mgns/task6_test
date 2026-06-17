@@ -52,8 +52,11 @@ def send_photo_result(message):
     bot.send_message(message.chat.id, photo_text)
 
 
-@bot.message_handler(func=lambda message: True)
+@bot.message_handler(content_types=["text"])
 def send_default(message):
+    if message.text in ("/start", "/help"):
+        return
+
     send_prepared_voice(message.chat.id)
 
 
