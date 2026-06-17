@@ -5,6 +5,8 @@ import telebot
 
 
 token = os.getenv("TELEGRAM_TOKEN")
+voice_file_id = os.getenv("VOICE_FILE_ID")
+voice_file_path = os.getenv("VOICE_FILE_PATH", "voice.ogg")
 
 if not token:
     raise RuntimeError("TELEGRAM_TOKEN is not set")
@@ -20,6 +22,19 @@ start_text = (
 
 voice_text = "тест тест раз два три проверка"
 photo_text = "доброе утро\n\nгде"
+
+
+def send_prepared_voice(chat_id):
+    if voice_file_id:
+        bot.send_voice(chat_id, voice_file_id)
+        return
+
+    if os.path.exists(voice_file_path):
+        with open(voice_file_path, "rb") as voice_file:
+            bot.send_voice(chat_id, voice_file)
+        return
+
+    bot.send_message(chat_id, "Голосовая заготовка не найдена")
 
 
 @bot.message_handler(commands=["start", "help"])
@@ -39,7 +54,7 @@ def send_photo_result(message):
 
 @bot.message_handler(func=lambda message: True)
 def send_default(message):
-    bot.send_message(message.chat.id, "Сообщение получено")
+    send_prepared_voice(message.chat.id)
 
 
 while True:
